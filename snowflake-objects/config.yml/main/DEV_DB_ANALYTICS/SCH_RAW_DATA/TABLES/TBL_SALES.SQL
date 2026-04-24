@@ -4,3 +4,9 @@ sale_id NUMBER,
 customer_id NUMBER,
 amount NUMBER
 );
+
+---rollback:
+DROP TABLE IF EXISTS SCH_RAW_DATA.TBL_SALES;
+
+---verify:
+SELECT * FROM SCH_RAW_DATA.TBL_SALES LIMIT 1;
