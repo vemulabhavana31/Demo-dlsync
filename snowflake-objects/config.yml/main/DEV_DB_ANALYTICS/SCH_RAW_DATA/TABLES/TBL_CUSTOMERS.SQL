@@ -1,0 +1,19 @@
+---version: 0
+---Hardcoded the schema name ----
+CREATE OR ALTER TABLE ${MY_DB}.SCH_RAW_DATA.TBL_CUSTOMERS(
+customer_id NUMBER,
+customer_name VARCHAR
+);
+
+---rollback:
+DROP TABLE IF EXISTS ${MY_DB}.SCH_RAW_DATA.TBL_CUSTOMERS;
+
+---verify:
+SELECT * FROM ${MY_DB}.SCH_RAW_DATA.TBL_CUSTOMERS LIMIT 1;
+
+---version : 1
+ALTER TABLE ${MY_DB}.SCH_RAW_DATA.TBL_CUSTOMERS ADD COLUMN email VARCHAR;
+
+---version : 2
+ALTER TABLE SCH_RAW_DATA.TBL_CUSTOMERS ADD COLUMN created_at TIMESTAMP;
+

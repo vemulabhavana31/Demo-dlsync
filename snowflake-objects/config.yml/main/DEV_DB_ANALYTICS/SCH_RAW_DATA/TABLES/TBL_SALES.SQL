@@ -1,0 +1,6 @@
+---VERSION : 1
+CREATE OR ALTER TABLE SCH_RAW_DATA.TBL_SALES(
+sale_id NUMBER,
+customer_id NUMBER,
+amount NUMBER
+);

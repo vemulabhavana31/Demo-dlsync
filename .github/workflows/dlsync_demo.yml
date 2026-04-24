@@ -1,0 +1,71 @@
+name: deploymentDLSync
+
+on:
+  push:
+    branches:
+      - feature/dlsync_setup
+    paths:
+      - 'snowflake-objects/**'
+  workflow_dispatch:
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Write Private Key
+        run: |
+          echo "${{ secrets.DLSYNC_PRIVATE_KEY }}" > rsa_key.p8
+          chmod 600 rsa_key.p8
+
+      - name: Clone DLSync
+        uses: actions/checkout@v4
+        with:
+          repository: Snowflake-Labs/dlsync
+          path: dlsync-src
+
+      - name: Build DLSync
+        run: |
+          cd dlsync-src
+          ./gradlew clean build
+
+      - name: Run Test
+        env:
+          account: ${{ secrets.DLSYNC_ACCOUNT }}
+          user: ${{ secrets.DLSYNC_USER }}
+          role: DEMO1_ROLE
+          warehouse: COMPUTE_WH
+          db: DB_ADMIN
+          schema: DLSYNC_DEV
+          private_key_file: rsa_key.p8
+          JAVA_TOOL_OPTIONS: "-Dnet.snowflake.jdbc.enableBouncyCastle=true"
+        run: |
+          java -jar dlsync-src/build/libs/dlsync-*.jar \
+          test \
+          --script-root snowflake-objects \
+          --profile dev
+
+      - name: Deploy
+        env:
+          account: ${{ secrets.DLSYNC_ACCOUNT }}
+          user: ${{ secrets.DLSYNC_USER }}
+          role: DEMO1_ROLE
+          warehouse: COMPUTE_WH
+          db: DB_ADMIN
+          schema: DLSYNC_DEV
+          private_key_file: rsa_key.p8
+          JAVA_TOOL_OPTIONS: "-Dnet.snowflake.jdbc.enableBouncyCastle=true"
+        run: |
+          java -jar dlsync-src/build/libs/dlsync-*.jar \
+          deploy \
+          --script-root snowflake-objects \
+          --profile dev

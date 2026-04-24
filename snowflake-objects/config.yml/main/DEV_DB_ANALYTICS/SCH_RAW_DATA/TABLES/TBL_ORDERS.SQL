@@ -1,0 +1,13 @@
+---version: 0
+
+CREATE OR REPLACE TABLE ${MY_DB}.SCH_RAW_DATA.TBL_ORDERS(
+    order_id NUMBER,
+    customer_id NUMBER,
+    order_amount NUMBER(10,2),
+    order_date DATE DEFAULT CURRENT_DATE
+);
+---rollback: 
+DROP TABLE IF EXISTS ${MY_DB}.SCH_RAW_DATA.TBL_ORDERS;
+---verify:
+ SELECT * FROM ${MY_DB}.SCH_RAW_DATA.TBL_ORDERS LIMIT 1;
+
